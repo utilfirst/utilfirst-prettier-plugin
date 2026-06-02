@@ -1,3 +1,6 @@
+@~/.claude/rule-bundles/ci-cd.md
+@~/.claude/rule-bundles/typescript.md
+
 # @utilfirst/prettier-plugin
 
 Shared Prettier plugin for utilfirst projects. ESM-only, Prettier 3 peer, single bundled default export.
@@ -16,8 +19,7 @@ src/
 
 ## Workflow
 
-- After any file change: `pnpm exec eslint --fix <file>` and `pnpm exec prettier --write <file>`
-- After finishing a set of related changes: `pnpm test` and `pnpm run lint:typecheck`
+- After finishing a set of related changes, also run `pnpm test`
 - After cloning: `pnpm run setup-hooks` to wire the simple-git-hooks pre-commit
 
 ## Build and bundling
@@ -47,9 +49,6 @@ src/
 
 ## GitHub Actions
 
-- Both workflows pin every action, including first-party `actions/*`, to a full commit SHA with a `# vX.Y.Z` comment, because a mutable tag can be repointed at malicious code (the vector behind the 2025-2026 GitHub Actions supply-chain attacks). To bump, find the current major with `gh api repos/OWNER/REPO/releases/latest` and pin its commit via `gh api repos/OWNER/REPO/commits/TAG --jq .sha` rather than moving the tag. Adopt a release only after it has been out about a week, unless it patches a security advisory
-- `persist-credentials: false` is set on every `actions/checkout`. No job pushes with the checkout token. The release-notes job creates the GitHub release through changelogithub's `GITHUB_TOKEN` rather than git, so a persisted token would only widen the blast radius of a compromised later step
-- `GITHUB_TOKEN` defaults to `contents: read` at the workflow top level. The publish job adds `id-token: write` for OIDC and release-notes adds `contents: write` for the release. No job has more than it needs
 - `ci.yml` runs a single leg against the Prettier 3 peer. No matrix, because `peerDependencies.prettier` is `^3.0.0` (single major). When Prettier 4 lands, add a matrix and update the peer
 
 ## Release
@@ -57,5 +56,4 @@ src/
 - One-time setup: configure an npm trusted publisher on npmjs.com pointing at scope `@utilfirst`, repo `utilfirst/utilfirst-prettier-plugin`, workflow `publish.yml`, environment `release`. Create a matching `release` GitHub environment
 - First publish bootstraps the package via local `npm publish --provenance=false`, then add the trusted publisher to the now-existing package. Subsequent versions ride `publish.yml`. The bootstrap exists because npm's trusted publisher can't be configured for a non-existent package
 - Each release: bump `version` in `package.json`, tag `vX.Y.Z`, push the tag. `publish.yml` builds, runs lint + test, packs, publishes with OIDC + automatic provenance, then emits release notes via changelogithub
-- `publish.yml` runs `npm install -g npm@latest` before `npm publish`. OIDC trusted publishing needs npm 11.5.1 and Node 22.14.0 or newer. Node 24 clears the Node floor, but the npm it bundles can predate 11.5.1
-- No NPM_TOKEN. The `release` environment is the gate
+- No `NPM_TOKEN`. The `release` environment is the gate
