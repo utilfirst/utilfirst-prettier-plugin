@@ -33,6 +33,13 @@ src/
 - After any file change: `pnpm exec eslint --fix <file>` and `pnpm exec prettier --write <file>`
 - After finishing a set of related changes: `pnpm test` and `pnpm run lint:typecheck`
 
+## Conventions
+
+- ESM-only, no CommonJS entry; the package ships one bundled default export from `src/index.ts`
+- Mark `prettier` external in `tsdown.config.ts`; the consumer's Prettier is the only runtime source for the markdown parser and printer
+- Operate on a structural `MdNode` superset in internal helpers because `collapseAutolinks` mutates a Link discriminator into an Html discriminator in place, which mdast's tagged union refuses
+- Write tests as inline-snapshot vitest tests that call `prettier.format` twice and assert idempotence
+
 ## Build and bundling
 
 - `pnpm run build` runs tsdown. `prepack` chains it before `npm pack`/`publish`
