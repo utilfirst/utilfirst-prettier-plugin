@@ -69,3 +69,10 @@ src/
 - Each release: bump `version` in `package.json`, tag `vX.Y.Z`, push the tag. `publish.yml` builds, runs lint + test, packs, publishes with OIDC + automatic provenance, then emits release notes via changelogithub
 - No `NPM_TOKEN`. The `release` environment is the gate
 
+## Boundaries
+
+- Ask first before bumping the major version (consumers across the fleet are pinned to `^X.Y.Z`, so a major bump is a fleet-wide migration).
+- Never publish manually (`npm publish` from a laptop). The OIDC trusted publisher in `publish.yml` is the only sanctioned release path.
+- Never tag a release without `pnpm test` and `pnpm run lint:typecheck` green locally (the `publish.yml` workflow re-runs both, but a failing tag still pollutes the release history).
+- Never commit `.npmrc` with auth tokens or any other npm credentials.
+
