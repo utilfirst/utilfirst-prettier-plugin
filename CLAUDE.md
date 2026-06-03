@@ -2,6 +2,18 @@
 
 Shared Prettier plugin for utilfirst projects. ESM-only, Prettier 3 peer, single bundled default export.
 
+## Directory layout
+
+```
+.github/workflows/
+├── ci.yml                          Lint + build + test on PR
+└── publish.yml                     Tag-triggered OIDC publish
+src/
+├── index.ts                        Plugin entry: wraps prettier's markdown parser/printer
+├── index.test.ts                   Inline-snapshot vitest tests
+└── prettier-markdown.d.ts          Ambient module shim for prettier/plugins/markdown
+```
+
 ## Stack
 
 - TypeScript, tsdown for bundling, vitest for tests
@@ -15,18 +27,6 @@ Shared Prettier plugin for utilfirst projects. ESM-only, Prettier 3 peer, single
 - `pnpm run setup-hooks`: wire the `simple-git-hooks` pre-commit (run once after clone)
 - `pnpm run build`: bundle via tsdown to `dist/index.js` + `dist/index.d.ts`
 - `pnpm test`: run vitest
-
-## Directory layout
-
-```
-.github/workflows/
-├── ci.yml                          Lint + build + test on PR
-└── publish.yml                     Tag-triggered OIDC publish
-src/
-├── index.ts                        Plugin entry: wraps prettier's markdown parser/printer
-├── index.test.ts                   Inline-snapshot vitest tests
-└── prettier-markdown.d.ts          Ambient module shim for prettier/plugins/markdown
-```
 
 ## Workflow
 
