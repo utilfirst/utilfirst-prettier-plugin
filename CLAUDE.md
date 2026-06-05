@@ -74,4 +74,3 @@ src/
 - First publish bootstraps the package via local `npm publish --provenance=false`, then add the trusted publisher to the now-existing package. Subsequent versions ride `publish.yml`. The bootstrap exists because npm's trusted publisher can't be configured for a non-existent package
 - Each release: bump `version` in `package.json`, tag `vX.Y.Z`, push the tag. `publish.yml` builds, runs lint + test, packs, publishes with OIDC + automatic provenance, then emits release notes via changelogithub
 - No `NPM_TOKEN`. The `release` environment is the gate
-
