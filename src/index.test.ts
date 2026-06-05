@@ -238,6 +238,17 @@ test("paragraph carrying URL above list applies both fixes", async () => {
   `);
 });
 
+test("paragraph above loose list keeps the intro blank", async () => {
+  expect(await run("Intro:\n- a\n\n- b\n")).toMatchInlineSnapshot(`
+    "Intro:
+
+    - a
+
+    - b
+    "
+  `);
+});
+
 test("nested paragraph-sublist inside listItem stays flush (Prettier-native)", async () => {
   expect(await run("- Outer item:\n    - sub a\n    - sub b\n"))
     .toMatchInlineSnapshot(`

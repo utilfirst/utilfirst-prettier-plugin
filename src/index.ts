@@ -48,7 +48,12 @@ function suppressIntroListGap(
     return;
   }
   for (let i = 0; i < children.length - 1; i++) {
-    if (children[i]?.type === "paragraph" && children[i + 1]?.type === "list") {
+    const next = children[i + 1];
+    if (
+      children[i]?.type === "paragraph" &&
+      next?.type === "list" &&
+      next.spread !== true
+    ) {
       inner[3 * i + 2] = "";
     }
   }
@@ -59,10 +64,12 @@ function suppressIntroListGap(
 // `html` node so the printer emits the URL without the angle brackets.
 //
 // Also suppress the blank line Prettier inserts between a paragraph and an
-// immediately following list. The Doc IR for a root with N children is
+// immediately following tight list. The Doc IR for a root with N children is
 // `[child0, hl, hl, child1, hl, hl, ..., childN-1]` followed by a trailing
 // hardline; replacing the second `hl` in a paragraph→list pair with `""`
-// collapses the blank line to a single newline.
+// collapses the blank line to a single newline. Spread (loose) lists are
+// skipped — collapsing the intro gap while the list itself keeps inter-item
+// blanks would leave an asymmetric tight-on-top, loose-below layout.
 const plugin: Plugin<Root> = {
   parsers: {
     markdown: {
