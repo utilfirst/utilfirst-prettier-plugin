@@ -35,7 +35,7 @@ src/
 
 ## Boundaries
 
-- Ask first before bumping the major version (consumers across the fleet are pinned to `^X.Y.Z`, so a major bump is a fleet-wide migration).
+- Ask first before bumping the major version (most consumers are pinned to `^X.Y.Z`, so a major bump forces an upgrade across projects that depend on this plugin).
 - Never publish manually (`npm publish` from a laptop). The OIDC trusted publisher in `publish.yml` is the only sanctioned release path.
 - Never tag a release without `pnpm test` and `pnpm run lint:typecheck` green locally (the `publish.yml` workflow re-runs both, but a failing tag still pollutes the release history).
 
@@ -47,7 +47,7 @@ src/
 
 ## Prettier private subpath
 
-- The plugin imports from `prettier/plugins/markdown`, which is not part of Prettier's public exports map. Prettier 3.x ships it as `./plugins/markdown.mjs` and Node's module resolution picks it up, but a future minor could move or rename the subpath. If that happens, the fix is to track Prettier's `plugins/` layout and update the import path. The shim at `src/prettier-markdown.d.ts` declares the minimal `Parser<Root>` / `Printer<Root>` shape we depend on
+- The plugin imports from `prettier/plugins/markdown`, which is not part of Prettier's public exports map. Prettier 3.x ships it as `./plugins/markdown.mjs` via Node's module resolution. A future minor may move or rename the subpath; track Prettier's `plugins/` layout and update the import path if so. The shim at `src/prettier-markdown.d.ts` declares the minimal `Parser<Root>` / `Printer<Root>` shape we depend on.
 - `@types/mdast` types the AST at the boundary. Internal helpers operate on a structural `MdNode` superset because `collapseAutolinks` mutates a Link discriminator into an Html discriminator in place, which mdast's tagged union refuses
 
 ## Testing
@@ -57,16 +57,16 @@ src/
 
 ## Lifecycle scripts
 
-- No `prepare` and no `postinstall`. `simple-git-hooks` is wired through `pnpm run setup-hooks` instead. The earlier `postinstall`/`prepare` form tripped pnpm's `[ERR_PNPM_IGNORED_BUILDS]` gate on every consumer install, and the `false` opt-out in `pnpm-workspace.yaml` did not survive pnpm's auto-rewrite
+- Wire `simple-git-hooks` through `pnpm run setup-hooks` instead of `prepare` or `postinstall`. The hook-script form tripped pnpm's `[ERR_PNPM_IGNORED_BUILDS]` gate on every consumer install, and the `false` opt-out in `pnpm-workspace.yaml` did not survive pnpm's auto-rewrite.
 - `prepack` runs the build before pack/publish so the tarball always contains a fresh `dist/`
 
 ## Consumer linking
 
-- Sibling repos in `/Users/yenbekbay/Developer/` consume this plugin from npm at `^X.Y.Z`. For local iteration against unpublished changes, swap to `link:../utilfirst-prettier-plugin` (not `file:`, which triggers pnpm's ignored-build-scripts gate)
+- Sibling repos consume this plugin from npm at `^X.Y.Z`. For local iteration against unpublished changes, swap to `link:../utilfirst-prettier-plugin` (not `file:`, which triggers pnpm's ignored-build-scripts gate).
 
 ## GitHub Actions
 
-- `ci.yml` runs a single leg against the Prettier 3 peer. No matrix, because `peerDependencies.prettier` is `^3.0.0` (single major). When Prettier 4 lands, add a matrix and update the peer
+- `ci.yml` runs a single leg against the Prettier 3 peer. No matrix because `peerDependencies.prettier` is `^3.0.0` (single major). Add a matrix when the peer range expands to cover a second major.
 
 ## Release
 
